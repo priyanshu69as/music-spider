@@ -151,3 +151,51 @@ export async function getLikedSongs() {
 
   return response.json();
 }
+
+
+export async function searchAllMusic(query) {
+  const encodedQuery = encodeURIComponent(query);
+
+  const [audiusResult, youtubeResult] = await Promise.allSettled([
+    fetch(
+      `${API_BASE_URL}/music/search?q=${encodedQuery}&limit=10`
+    ).then(async (response) => {
+      if (!response.ok) {
+        throw new Error(`Audius search failed: ${response.status}`);
+      }
+      return response.json();
+    }),
+
+    fetch(
+      `${API_BASE_URL}/youtube/search?q=${encodedQuery}&limit=10`
+    ).then(async (response) => {
+      if (!response.ok) {
+        throw new Error(`YouTube search failed: ${response.status}`);
+      }
+      return response.json();
+    }),
+  ]);
+
+  return {
+    audius:
+      audiusResult.status === "fulfilled"
+        ? audiusResult.value
+        : { tracks: [] },
+
+    youtube:
+      youtubeResult.status === "fulfilled"
+        ? youtubeResult.value
+        : [],
+
+    errors: {
+      audius:
+        audiusResult.status === "rejected"
+          ? audiusResult.reason.message
+          : null,
+      youtube:
+        youtubeResult.status === "rejected"
+          ? youtubeResult.reason.message
+          : null,
+    },
+  };
+}

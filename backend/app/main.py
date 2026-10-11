@@ -106,3 +106,59 @@ def database_test():
             "database": "not connected",
             "details": str(e)
         }
+
+
+
+
+import os
+import requests
+
+from fastapi import HTTPException, Query
+
+@app.get("/youtube/search")
+def search_youtube(
+    q: str = Query(..., min_length=1),
+    limit: int = Query(10, ge=1, le=25),
+):
+    api_key = os.getenv("YOUTUBE_API_KEY")
+
+    if not api_key:
+        raise HTTPException(
+            status_code=500,
+            detail="YouTube API key is not configured",
+        )
+
+    try:
+        response = requests.get(
+            "https://www.googleapis.com/youtube/v3/search",
+            params={
+                "part": "snippet",
+                "q": q,
+                "type": "video",
+                "videoEmbeddable": "true",
+                "maxResults": limit,
+                "regionCode": "IN",
+                "relevanceLanguage": "hi",
+                "key": api_key,
+            },
+            timeout=10,
+        )
+        response.raise_for_status()
+        data = response.json()
+
+    except requests.RequestException:
+        raise HTTPException(
+            status_code=502,
+            detail="YouTube search failed",
+        )
+
+    return [
+        {
+            "video_id": item["id"]["videoId"],
+            "title": item["snippet"]["title"],
+            "channel": item["snippet"]["channelTitle"],
+            "thumbnail": item["snippet"]["thumbnails"]["medium"]["url"],
+        }
+        for item in data.get("items", [])
+        if item.get("id", {}).get("videoId")
+    ]    
