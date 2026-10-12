@@ -9,7 +9,16 @@ from app.routes.history import router as history_router
 from app.routes.likes import router as likes_router
 
 
-from fastapi.middleware.cors import CORSMiddleware
+
+# =========================================================
+# CREATE APP
+# =========================================================
+
+app = FastAPI(
+    title="Music Recommendation API",
+    description="Backend API for the Music Recommendation Platform",
+    version="1.0.0"
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,36 +33,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# =========================================================
-# CREATE APP
-# =========================================================
-
-app = FastAPI(
-    title="Music Recommendation API",
-    description="Backend API for the Music Recommendation Platform",
-    version="1.0.0"
-)
-
-
 # =========================================================
 # CORS
 # =========================================================
 
-app.add_middleware(
-    CORSMiddleware,
-
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173"
-    ],
-
-    allow_credentials=True,
-
-    allow_methods=["*"],
-
-    allow_headers=["*"],
-)
 
 
 # =========================================================
