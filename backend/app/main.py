@@ -9,6 +9,22 @@ from app.routes.history import router as history_router
 from app.routes.likes import router as likes_router
 
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://music-spider.vercel.app",
+        "https://music-spider-ozc6d6v3h-chikuu1.vercel.app",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 # =========================================================
 # CREATE APP
 # =========================================================
